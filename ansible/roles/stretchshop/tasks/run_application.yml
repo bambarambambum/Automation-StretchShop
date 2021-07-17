@@ -1,0 +1,4 @@
+- name: Run StretchShop server
+  shell: npm run dev &
+  args:
+    chdir: /opt/development/stretchshop/backend

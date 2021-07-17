@@ -1,0 +1,4 @@
+- name: Get demo data to StretchShop
+  shell: node node_modules/stretchshop/demo/repo/db/demo_data.js
+  args:
+    chdir: /opt/development/stretchshop/backend

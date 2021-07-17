@@ -1,0 +1,22 @@
+- name: Install a Node.js + NPM packages
+  apt:
+    pkg:
+    - nodejs
+    - npm
+
+- name: Check Node.js version
+  shell: npm --version
+  register: shell_output
+
+- name: Print Node.js version
+  ansible.builtin.debug:
+    var: shell_output.stdout
+
+- name: Check NPM version
+  shell: node --version
+  register: shell_output
+
+- name: Print NPM version
+  ansible.builtin.debug:
+    var: shell_output.stdout
+

@@ -1,0 +1,14 @@
+---
+  - name: Install StretchShop application
+    hosts: do-01
+    become: true
+    tasks:
+      
+    - name: Kill stretchshop
+      shell: killall node
+      ignore_errors: yes
+
+    - name: Delete stretchshop directory
+      ansible.builtin.file:
+        path: /opt/development/stretchshop
+        state: absent     
