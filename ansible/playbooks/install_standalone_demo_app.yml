@@ -1,0 +1,11 @@
+---
+  - name: Install a standalone StretchShop dev server
+    hosts: do-01
+    vars:
+      path_to_install: /opt/development/stretchshop/backend
+    become: true
+    pre_tasks:
+    - import_tasks: update_packages.yml
+    roles:
+      - mongodb
+      - stretchshop
