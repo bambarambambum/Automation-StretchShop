@@ -1,6 +1,0 @@
----
-  - name: Install StretchShop application
-    hosts: do-01
-    become: true
-    roles:
-      - stretchshop

@@ -18,3 +18,8 @@
     systemd:
       name: mongod
       enabled: yes
+
+  - name: Start mongodb
+    service: 
+      name: mongod 
+      state: started

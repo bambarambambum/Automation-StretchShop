@@ -1,26 +1,20 @@
 - name: Create a work directory if it does not exist
   ansible.builtin.file:
-    path: /opt/development/stretchshop/backend
+    path: "{{ path_to_install }}"
     state: directory
-    mode: 0744
-
-- name: Recursively change ownership of a stretchshop directory
-  ansible.builtin.file:
-    path: /opt/development/stretchshop
-    state: directory
-    recurse: yes
     owner: uadmin
     group: uadmin
+    mode: u=rwx,g=r,o=r
 
 - name: Install StretchShop
   shell: npm install stretchshop
   args:
-    chdir: /opt/development/stretchshop/backend
+    chdir: "{{ path_to_install }}"
 
 - name: Change .env config file
   template:
     src:  templates/.env.j2
-    dest: /opt/development/stretchshop/backend/.env
+    dest: "{{ path_to_install }}.env"
     mode: u=rw,g=r,o=r
     owner: uadmin
     group: uadmin

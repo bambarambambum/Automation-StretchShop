@@ -1,4 +1,4 @@
 - name: Run StretchShop server
   shell: npm run dev &
   args:
-    chdir: /opt/development/stretchshop/backend
+    chdir: "{{ path_to_install }}"

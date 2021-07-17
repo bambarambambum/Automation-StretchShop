@@ -1,4 +1,10 @@
+- name: Change demo_data.js mongodb ip address
+  template:
+    src:  templates/demo_data.js.j2
+    dest: "{{ path_to_install }}/node_modules/stretchshop/demo/repo/db/demo_data.js"
+    mode: u=rw,g=r,o=r
+
 - name: Get demo data to StretchShop
   shell: node node_modules/stretchshop/demo/repo/db/demo_data.js
   args:
-    chdir: /opt/development/stretchshop/backend
+    chdir: "{{ path_to_install }}"

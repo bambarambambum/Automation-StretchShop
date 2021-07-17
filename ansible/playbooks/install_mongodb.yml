@@ -1,6 +1,0 @@
----
-    - name: Install MongoDB 4.4
-      hosts: do-02
-      become: true
-      roles:
-        - mongodb

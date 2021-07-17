@@ -11,6 +11,7 @@
 - name: Print Node.js version
   ansible.builtin.debug:
     var: shell_output.stdout
+    verbosity: 1
 
 - name: Check NPM version
   shell: node --version
@@ -19,4 +20,5 @@
 - name: Print NPM version
   ansible.builtin.debug:
     var: shell_output.stdout
+    verbosity: 1
 
