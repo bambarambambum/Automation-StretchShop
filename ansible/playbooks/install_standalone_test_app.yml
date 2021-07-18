@@ -1,0 +1,8 @@
+---
+  - name: Install a standalone StretchShop test server on Docker containers
+    hosts: do-01
+    become: true
+    pre_tasks:
+    - import_tasks: update_packages.yml
+    roles:
+      - stretchshop-docker

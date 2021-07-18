@@ -1,0 +1,87 @@
+---
+## Global
+owner_os_user: uadmin
+owner_os_group: uadmin
+project_path: /opt/stretchshop
+
+## Docker, Docker-compose install
+docker_keyring: /usr/share/keyrings/docker-archive-keyring.gpg
+docker_compose_version: 1.29.2
+
+## Images
+# Docker (StretchShop)
+stretchshop_image_version: 0.5.5
+stretchshop_default_port: 3000
+stretchshop_traefik_frontend_entryPoints: http
+stretchshop_work_folder: /var/www/html/stretchshop/static
+
+# Docker (mongo)
+mongo_contaner_name: mongo
+mongo_image_version: 4.4.6
+mongo_initdb_root_username: admin
+mongo_initdb_root_password: admin
+mongo_host_port: 27017
+mongo_volume: ./db
+mongo_conf: ./dbconf
+
+# Docker (nats-server)
+nats_image_version: 2.3.2
+nats_server_username: defaultUsername
+nats_server_password: defaultPassword
+nats_host_port: 4222
+
+# Docker (traefik)
+traefik_image_version: 1.7
+traefik_port: 8080
+
+## Application
+# Mandatory
+node_env: test
+application_port: 3000
+application_namespace: stretchshop
+application_loglevel: info
+application_jwt_secret: jwt-secret-SOMETHING
+application_servicedir: services
+
+# Optional
+assets_path: /var/www/html/stretchshop/static
+assets_url_port: 3000
+
+# Optional (Email)
+email_defaults_from: '"StretchShop support" <support@stretchshop.app>'
+email_defaults_subject: '"StretchShop - "'
+email_smtp_host: smtp.ethereal.email
+email_smtp_port: 587
+email_smtp_secure: "false"
+email_smtp_auth_user: getYourEtheralAccount@ethereal.email
+email_smtp_auth_pass: yourEtheralPassword
+email_smtp_ciphers: SSLv3
+
+# Optional (Sending order)
+sending_order_url: https://yourdata.com/databridge/
+sending_order_port: 80
+sending_order_login: yourLogin
+sending_order_pwd: yourPassword
+
+# Optional (Paypal)
+paypal_env: sandbox
+paypal_client_id: clientId
+paypal_secret: secret
+
+# Optional (Braintree)
+braintree_env: sandbox
+braintree_merchant_id: merchantId
+braintree_public_key: publicKey
+braintree_private_key: privateKey
+
+# Optional (Recaptcha)
+recaptcha_url: https://www.google.com/recaptcha/api/siteverify
+recaptcha_secret: yourRECAPTCHAsecretFROMrecaptchaAdminConsole
+
+# Optional (Cookies)
+cookies_secure: "true"
+cookies_same_site: lax
+
+# Optional (SSL)
+https_key: /etc/letsencrypt/live/yoursite.tld/privkey.pem
+https_cert: /etc/letsencrypt/live/yoursite.tld/cert.pem

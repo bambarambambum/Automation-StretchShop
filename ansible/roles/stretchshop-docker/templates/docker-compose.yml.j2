@@ -1,0 +1,67 @@
+version: "3.0"
+
+services:
+  stretchshop:
+    #build:
+    #  context: ../..
+    image: wradgio/stretchshop:{{stretchshop_image_version}}
+    env_file: docker-compose.env
+    environment:
+      PORT: {{stretchshop_default_port}}
+    # links:
+    #   - redis
+    # depends_on:
+    #   - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=api"
+      - "traefik.port={{stretchshop_default_port}}"
+      - "traefik.frontend.entryPoints={{stretchshop_traefik_frontend_entryPoints}}"
+      - "traefik.frontend.rule=PathPrefix:/"
+    volumes:
+      # need to create /var/www/html/stretchshop/static on host filesystem
+      - {{stretchshop_work_folder}}:/app/public/assets/data
+    links:
+      # - redis
+      - {{mongo_contaner_name}}
+    depends_on:
+      # - redis
+      - {{mongo_contaner_name}}
+    #deploy:
+    #  replicas: 2
+
+  {{mongo_contaner_name}}:
+    # mongo for local usage only, authentification is not set up, port 27017 should not be allowed by firewall
+    image: mongo:{{mongo_image_version}}
+    restart: on-failure
+    volumes:
+      - {{mongo_volume}}:/data/db
+      - {{mongo_conf}}:/etc/mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: {{mongo_initdb_root_username}}
+      MONGO_INITDB_ROOT_PASSWORD: {{mongo_initdb_root_password}}
+    ports:
+      - "{{mongo_host_port}}:27017"
+
+  nats-server:
+    image: nats:{{nats_image_version}}
+    #entrypoint: "/gnatsd -D --user {{nats_server_username}} --pass {{nats_server_password}}" # -D debug , -V trace
+    ports:
+      - "{{nats_host_port}}:4222"
+
+  traefik:
+    image: traefik:{{traefik_image_version}}
+    command:
+      - "--api"
+      - "--docker"
+      - "--docker.watch"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=traefik"
+      - "traefik.port={{traefik_port}}"
+    ports:
+      - "3000:80"
+      - "3001:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml

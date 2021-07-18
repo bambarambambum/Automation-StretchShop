@@ -1,0 +1,37 @@
+---
+- name: Create a stretchshop site directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ stretchshop_work_folder }}"
+    state: directory
+    owner: "{{owner_os_user}}"
+    group: "{{owner_os_group}}"
+    mode: u=rwx,g=r,o=r
+
+- name: Create a stretchshop work (docker-compose) directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ project_path }}"
+    state: directory
+    owner: "{{owner_os_user}}"
+    group: "{{owner_os_group}}"
+    mode: u=rwx,g=r
+
+- name: Copy docker-compose.env config file
+  template:
+    src:  templates/docker-compose.env.j2
+    dest: "{{ project_path }}/docker-compose.env"
+    mode: u=rw,g=r
+    owner: "{{owner_os_user}}"
+    group: "{{owner_os_group}}"
+
+- name: Copy docker-compose.yml file
+  template:
+    src:  templates/docker-compose.yml.j2
+    dest: "{{ project_path }}/docker-compose.yml"
+    mode: u=rw,g=r
+    owner: "{{owner_os_user}}"
+    group: "{{owner_os_group}}"
+
+- name: Create and start all Stretchshop services
+  shell: docker-compose up -d
+  args: 
+    chdir: "{{ project_path }}"

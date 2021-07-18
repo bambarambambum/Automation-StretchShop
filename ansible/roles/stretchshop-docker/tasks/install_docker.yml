@@ -1,0 +1,28 @@
+---
+- name: Install list of packages
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'curl', 'gnupg', 'lsb-release']
+    state: present
+    update_cache: yes
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/{{ ansible_distribution|lower }}/gpg
+    keyring: "{{ docker_keyring }}"
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: deb [arch=amd64 signed-by={{ docker_keyring }}] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Install Docker Engine
+  apt:
+    name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+    state: present
+    update_cache: yes
+
+- name: Start and enable docker daemon
+  service:
+    name: docker
+    state: started
+    enabled: yes
