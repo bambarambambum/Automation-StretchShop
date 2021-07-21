@@ -9,14 +9,19 @@ docker_keyring: /usr/share/keyrings/docker-archive-keyring.gpg
 docker_compose_version: 1.29.2
 
 ## Images
+# Docker (Global)
+
+docker_external_network: web
+my_domain: rubytech.ru
+
 # Docker (StretchShop)
+stretchshop_container_name: stretchshop
 stretchshop_image_version: 0.5.5
 stretchshop_default_port: 3000
-stretchshop_traefik_frontend_entryPoints: http
 stretchshop_work_folder: /var/www/html/stretchshop/static
 
 # Docker (mongo)
-mongo_contaner_name: mongo
+mongo_container_name: mongo
 mongo_image_version: 4.4.6
 mongo_initdb_root_username: admin
 mongo_initdb_root_password: admin
@@ -26,11 +31,10 @@ mongo_conf: ./dbconf
 
 # Docker (nats-server)
 nats_image_version: 2.3.2
-nats_server_username: defaultUsername
-nats_server_password: defaultPassword
 nats_host_port: 4222
 
 # Docker (traefik)
+traefik_container_name: tr-dash
 traefik_image_version: 1.7
 traefik_port: 8080
 

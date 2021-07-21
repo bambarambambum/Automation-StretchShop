@@ -23,13 +23,27 @@
     owner: "{{owner_os_user}}"
     group: "{{owner_os_group}}"
 
-- name: Copy docker-compose.yml file
+- name: Copy a docker-compose.yml file
   template:
     src:  templates/docker-compose.yml.j2
     dest: "{{ project_path }}/docker-compose.yml"
     mode: u=rw,g=r
     owner: "{{owner_os_user}}"
     group: "{{owner_os_group}}"
+
+- name: Copy a traefik.toml file
+  template:
+    dest: "{{ project_path }}/traefik.toml"
+    src: templates/traefik.toml.j2
+    mode: u=rw,g=r
+    owner: "{{owner_os_user}}"
+    group: "{{owner_os_group}}"
+  when: prod is defined
+
+- name: Create external network Web
+  shell: docker network create web
+  when: prod is defined
+  ignore_errors: yes
 
 - name: Create and start all Stretchshop services
   shell: docker-compose up -d

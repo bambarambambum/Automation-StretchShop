@@ -1,37 +1,41 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "false"
 version: "3.0"
 
+{% if prod is defined %}
+networks:
+  {{docker_external_network}}:
+    external: true
+  internal:
+    external: false
+{% endif %}
+
 services:
-  stretchshop:
-    #build:
-    #  context: ../..
+  {{stretchshop_container_name}}:
     image: wradgio/stretchshop:{{stretchshop_image_version}}
     env_file: docker-compose.env
     environment:
       PORT: {{stretchshop_default_port}}
-    # links:
-    #   - redis
-    # depends_on:
-    #   - redis
     labels:
-      - "traefik.enable=true"
-      - "traefik.backend=api"
-      - "traefik.port={{stretchshop_default_port}}"
-      - "traefik.frontend.entryPoints={{stretchshop_traefik_frontend_entryPoints}}"
+      - "traefik.port={{stretchshop_default_port}}" # 3000
+      - "traefik.backend={{stretchshop_container_name}}" # stretchshop
+    {% if prod is undefined %}
       - "traefik.frontend.rule=PathPrefix:/"
+    {% endif %}
+    {%- if prod is defined %}
+      - "traefik.frontend.rule=Host:stretchshop.{{my_domain}}"
+      - "traefik.docker.network={{docker_external_network}}"
+    networks:
+      - internal
+      - {{docker_external_network}}
+    {% endif %}
     volumes:
-      # need to create /var/www/html/stretchshop/static on host filesystem
       - {{stretchshop_work_folder}}:/app/public/assets/data
     links:
-      # - redis
-      - {{mongo_contaner_name}}
+      - {{mongo_container_name}}
     depends_on:
-      # - redis
-      - {{mongo_contaner_name}}
-    #deploy:
-    #  replicas: 2
+      - {{mongo_container_name}}
 
-  {{mongo_contaner_name}}:
-    # mongo for local usage only, authentification is not set up, port 27017 should not be allowed by firewall
+  {{mongo_container_name}}:
     image: mongo:{{mongo_image_version}}
     restart: on-failure
     volumes:
@@ -40,28 +44,57 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: {{mongo_initdb_root_username}}
       MONGO_INITDB_ROOT_PASSWORD: {{mongo_initdb_root_password}}
+    {% if prod is defined %}
+    networks:
+      - internal
+    {% endif %}
+    labels:
+      - "traefik.enable=false"
     ports:
       - "{{mongo_host_port}}:27017"
 
   nats-server:
     image: nats:{{nats_image_version}}
-    #entrypoint: "/gnatsd -D --user {{nats_server_username}} --pass {{nats_server_password}}" # -D debug , -V trace
     ports:
       - "{{nats_host_port}}:4222"
+    labels:
+      - "traefik.enable=false"
+    {% if prod is defined %}
+    networks:
+      - internal
+    {% endif %}
 
-  traefik:
+  {{traefik_container_name}}:
     image: traefik:{{traefik_image_version}}
     command:
       - "--api"
       - "--docker"
       - "--docker.watch"
     labels:
-      - "traefik.enable=true"
-      - "traefik.backend=traefik"
+      - "traefik.backend={{traefik_container_name}}"
       - "traefik.port={{traefik_port}}"
+      {% if prod is undefined %}
+      - "traefik.frontend.rule=PathPrefix:/"
+      {% endif %}
+    {% if prod is defined %}
+      - "traefik.frontend.rule=Host:stretchshop.{{my_domain}}"
+      - "traefik.docker.network={{docker_external_network}}"
+    networks:
+      - {{docker_external_network}}
+    {% endif %}
     ports:
-      - "3000:80"
-      - "3001:8080"
+      - "80:80"
+    {% if prod is undefined %}
+      - "8080:8080"
+    {% endif %}
+    {% if prod is defined %}
+      - "443:443"
+    {% endif %}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    {% if prod is undefined %}
       - /dev/null:/traefik.toml
+    {% endif %}
+        {% if prod is defined %}
+      - .traefik.toml:/traefik.toml
+    {% endif %}
