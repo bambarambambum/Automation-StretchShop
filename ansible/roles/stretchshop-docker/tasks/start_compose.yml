@@ -31,10 +31,10 @@
     owner: "{{owner_os_user}}"
     group: "{{owner_os_group}}"
 
-- name: Copy a traefik.toml file
+- name: Copy a traefik.yml file
   template:
-    dest: "{{ project_path }}/traefik.toml"
-    src: templates/traefik.toml.j2
+    dest: "{{ project_path }}/traefik.yml"
+    src: templates/traefik.yml.j2
     mode: u=rw,g=r
     owner: "{{owner_os_user}}"
     group: "{{owner_os_group}}"

@@ -9,31 +9,71 @@ networks:
     external: false
 {% endif %}
 
+
 services:
+  {{traefik_container_name}}:
+    image: traefik:{{traefik_image_version}}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.{{traefik_container_name}}.service=api@internal"
+      - "traefik.http.routers.{{traefik_container_name}}.rule=Host(`{{traefik_container_name}}.{{my_domain}}`)"
+      {% if prod is undefined %}
+      - "traefik.http.routers.{{traefik_container_name}}.entrypoints=http"
+      {% endif %}
+      {% if tr_https_enable == "true" %}
+      - "traefik.http.routers.{{traefik_container_name}}.entrypoints=https"
+      - "traefik.http.routers.{{traefik_container_name}}.tls=true"
+      {% endif %}
+      {% if tr_acme == "true" %}}
+      - "traefik.http.routers.{{traefik_container_name}}.tls.certresolver=letsEncrypt"
+      {% endif %}
+      {% if prod is defined %}
+    networks:
+      - {{docker_external_network}}
+      {% endif %}
+    ports:
+      - "80:80"
+      {% if prod is defined %}
+      - "443:443"
+      {% endif %}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+      {% if tr_acme == "true" %}}
+      - ./acme.json:/acme.json
+      {% endif %}
+
   {{stretchshop_container_name}}:
     image: wradgio/stretchshop:{{stretchshop_image_version}}
     env_file: docker-compose.env
     environment:
       PORT: {{stretchshop_default_port}}
     labels:
-      - "traefik.port={{stretchshop_default_port}}" # 3000
-      - "traefik.backend={{stretchshop_container_name}}" # stretchshop
-    {% if prod is undefined %}
-      - "traefik.frontend.rule=PathPrefix:/"
-    {% endif %}
-    {%- if prod is defined %}
-      - "traefik.frontend.rule=Host:stretchshop.{{my_domain}}"
+      - "traefik.enable=true"
+      - "traefik.http.services.{{stretchshop_container_name}}.loadbalancer.server.port={{stretchshop_default_port}}"
+      - "traefik.http.routers.{{stretchshop_container_name}}.rule=Host(`{{stretchshop_container_name}}.{{my_domain}}`)"
+      {% if prod is undefined %}
+      - "traefik.http.routers.{{stretchshop_container_name}}.entrypoints=http"
+      {% endif %}
+      {% if tr_acme == "true" %}}
+      - "traefik.http.routers.{{stretchshop_container_name}}.tls.certresolver=letsEncrypt"
+      {% endif %}
+      {% if tr_https_enable == "true" %}
+      - "traefik.http.routers.{{stretchshop_container_name}}.entrypoints=https"
+      - "traefik.http.routers.{{stretchshop_container_name}}.tls=true"
+      {% endif %}
+      {% if prod is defined %}
       - "traefik.docker.network={{docker_external_network}}"
     networks:
       - internal
       - {{docker_external_network}}
-    {% endif %}
+      {% endif %}
     volumes:
-      - {{stretchshop_work_folder}}:/app/public/assets/data
+      - /var/www/html/stretchshop/static:/app/public/assets/data
     links:
-      - {{mongo_container_name}}
+      - mongo
     depends_on:
-      - {{mongo_container_name}}
+      - mongo
 
   {{mongo_container_name}}:
     image: mongo:{{mongo_image_version}}
@@ -64,37 +104,3 @@ services:
       - internal
     {% endif %}
 
-  {{traefik_container_name}}:
-    image: traefik:{{traefik_image_version}}
-    command:
-      - "--api"
-      - "--docker"
-      - "--docker.watch"
-    labels:
-      - "traefik.backend={{traefik_container_name}}"
-      - "traefik.port={{traefik_port}}"
-      {% if prod is undefined %}
-      - "traefik.frontend.rule=PathPrefix:/"
-      {% endif %}
-    {% if prod is defined %}
-      - "traefik.frontend.rule=Host:stretchshop.{{my_domain}}"
-      - "traefik.docker.network={{docker_external_network}}"
-    networks:
-      - {{docker_external_network}}
-    {% endif %}
-    ports:
-      - "80:80"
-    {% if prod is undefined %}
-      - "8080:8080"
-    {% endif %}
-    {% if prod is defined %}
-      - "443:443"
-    {% endif %}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    {% if prod is undefined %}
-      - /dev/null:/traefik.toml
-    {% endif %}
-        {% if prod is defined %}
-      - .traefik.toml:/traefik.toml
-    {% endif %}

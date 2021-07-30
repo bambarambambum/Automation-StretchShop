@@ -35,8 +35,7 @@ nats_host_port: 4222
 
 # Docker (traefik)
 traefik_container_name: tr-dash
-traefik_image_version: 1.7
-traefik_port: 8080
+traefik_image_version: v2.4
 
 ## Application
 # Mandatory

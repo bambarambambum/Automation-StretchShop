@@ -2,3 +2,4 @@
 /ansible/ansible.cfg
 /ansible/hosts
 /ansible/playbooks/test
+/ansible/roles/stretchshop-docker/files/cert
