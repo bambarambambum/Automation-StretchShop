@@ -2,6 +2,6 @@
 # tasks file for stretchshop-docker
 - include: install_docker.yml
 - include: install_docker_compose.yml
-#- include: install_cert.yml
-#  when: tr_tls_on == "true"
+- include: use_acme.yml
+  when: tr_acme == "true"
 - include: start_compose.yml

@@ -24,7 +24,7 @@ services:
       - "traefik.http.routers.{{traefik_container_name}}.entrypoints=https"
       - "traefik.http.routers.{{traefik_container_name}}.tls=true"
       {% endif %}
-      {% if tr_acme == "true" %}}
+      {% if tr_acme == "true" %}
       - "traefik.http.routers.{{traefik_container_name}}.tls.certresolver=letsEncrypt"
       {% endif %}
       {% if prod is defined %}
@@ -39,7 +39,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/traefik.yml:ro
-      {% if tr_acme == "true" %}}
+      {% if tr_acme == "true" %}
       - ./acme.json:/acme.json
       {% endif %}
 
@@ -55,7 +55,7 @@ services:
       {% if prod is undefined %}
       - "traefik.http.routers.{{stretchshop_container_name}}.entrypoints=http"
       {% endif %}
-      {% if tr_acme == "true" %}}
+      {% if tr_acme == "true" %}
       - "traefik.http.routers.{{stretchshop_container_name}}.tls.certresolver=letsEncrypt"
       {% endif %}
       {% if tr_https_enable == "true" %}
